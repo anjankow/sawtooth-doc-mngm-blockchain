@@ -1,12 +1,12 @@
 from sawtooth_sdk.processor.handler import TransactionHandler
 
-class DocTrackerHandler(TransactionHandler):
+class ProposalsHandler(TransactionHandler):
     def __init__(self, namespace_prefix):
         self._namespace_prefix = namespace_prefix
 
     @property
     def family_name(self):
-        return 'doctracker'
+        return 'proposals'
 
     @property
     def family_versions(self):

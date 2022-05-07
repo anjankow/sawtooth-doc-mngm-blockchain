@@ -29,7 +29,14 @@ services:
   doctracker-tp:
     build:
       context: doctracker-tp/
-    container_name: sawtooth-doctracker
+    container_name: sawtooth-doctracker-tp
+    depends_on:
+      - validator
+
+  proposals-tp:
+    build:
+      context: proposals-tp/
+    container_name: sawtooth-proposals-tp
     depends_on:
       - validator
 
