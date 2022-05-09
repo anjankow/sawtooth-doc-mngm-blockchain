@@ -5,7 +5,7 @@ import logging
 import sys
 
 def main():
-    logging.info('doctracker-tp start!')
+    logging.info('proposals-tp start!')
     processor = TransactionProcessor(url='tcp://validator:4004')
 
     handler = ProposalsHandler('org')
