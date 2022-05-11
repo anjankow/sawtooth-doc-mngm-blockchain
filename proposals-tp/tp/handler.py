@@ -29,12 +29,12 @@ LOGGER = logging.getLogger(__name__)
 
 FAMILY_NAME = 'proposals'
 
-INTKEY_ADDRESS_PREFIX = hashlib.sha512(
+FAMILY_ADDR_PREFIX = hashlib.sha512(
     FAMILY_NAME.encode('utf-8')).hexdigest()[0:6]
 
 
 def _make_proposal_address(category, docName):
-    return INTKEY_ADDRESS_PREFIX + hashlib.sha512(
+    return FAMILY_ADDR_PREFIX + hashlib.sha512(
         category.encode('utf-8')).hexdigest()[0:6] + hashlib.sha512(
         docName.encode('utf-8')).hexdigest()[0:58]
 
