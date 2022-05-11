@@ -116,6 +116,7 @@ def _set_state_data(context, state, address):
 
 
 def _decode_transaction(transaction) -> ProposalInput:
+
     try:
         content = cbor.loads(transaction.payload)
     except Exception as e:
@@ -125,10 +126,7 @@ def _decode_transaction(transaction) -> ProposalInput:
         category = content['category']
     except:
         pass
-    try:
-        proposalID = content['proposalID']
-    except:
-        pass
+
     try:
         docName = content['docName']
     except:
@@ -145,5 +143,7 @@ def _decode_transaction(transaction) -> ProposalInput:
         proposedStatus = content['proposedStatus']
     except:
         pass
+
+    proposalID = transaction.signature
 
     return ProposalInput(category, proposalID, docName, contentHash, author, proposedStatus)
