@@ -61,6 +61,8 @@ class ProposalsHandler(TransactionHandler):
 
         address = _make_proposal_address(
             transactionInput.category, transactionInput.docName)
+        LOGGER.debug('address:')
+        LOGGER.debug(address)
 
         state = _get_state_data(context, address)
 
