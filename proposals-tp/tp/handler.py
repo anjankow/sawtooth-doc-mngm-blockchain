@@ -15,6 +15,8 @@
 
 # based on https://github.com/hyperledger/sawtooth-sdk-python/blob/6885a1cbfc210a14fc2406f2dae5504c9881602c/examples/intkey_python/sawtooth_intkey/processor/handler.py
 
+from nis import cat
+from select import select
 from typing import List
 import logging
 import cbor
@@ -22,21 +24,17 @@ import hashlib
 from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.exceptions import InternalError
-from .models import ProposalInput, StoredProposal
+from .models import *
+from .handler_add import *
+from .handler_remove import *
+from .handler_vote import *
 
 LOGGER = logging.getLogger(__name__)
 
 
-FAMILY_NAME = 'proposals'
-
-FAMILY_ADDR_PREFIX = hashlib.sha512(
-    FAMILY_NAME.encode('utf-8')).hexdigest()[0:6]
-
-
-def _make_proposal_address(category, docName):
-    return FAMILY_ADDR_PREFIX + hashlib.sha512(
-        category.encode('utf-8')).hexdigest()[0:6] + hashlib.sha512(
-        docName.encode('utf-8')).hexdigest()[0:58]
+ACTION_INSERT_PROPOSAL = 'insert'
+ACTION_VOTE_PROPOSAL = 'vote'
+ACTION_DELETE_PROPOSAL = 'delete'
 
 
 class ProposalsHandler(TransactionHandler):
@@ -56,68 +54,28 @@ class ProposalsHandler(TransactionHandler):
         return [self._namespace_prefix]
 
     def apply(self, transaction, context):
-        transactionInput = _decode_transaction(transaction)
-        transactionInput.validate()
+        # use try-except here to workaround the bug of endless loop of the tp on error
+        try:
+            action, content = _decode_action(transaction)
 
-        address = _make_proposal_address(
-            transactionInput.category, transactionInput.docName)
-        LOGGER.debug('address:')
-        LOGGER.debug(address)
+            if action == ACTION_INSERT_PROPOSAL:
 
-        state = _get_state_data(context, address)
-
-        updated_state = _insert_new_proposal(
-            transactionInput, state)
-
-        _set_state_data(context, updated_state, address)
-
-
-def _insert_new_proposal(newProposal: ProposalInput, state: dict) -> dict:
-    LOGGER.debug('current state:')
-    LOGGER.debug(state)
-
-    if state == {}:
-        LOGGER.debug('state is empty, creating...')
-        state['category'] = newProposal.category
-        state['docName'] = newProposal.docName
-        state['proposals'] = []
-
-    updated = dict(state.items())
-    newProposItem = StoredProposal(
-        newProposal.proposalID, newProposal.author, newProposal.proposedStatus, newProposal.contentHash)
-    proposList = list(state['proposals'])
-    proposList.append(newProposItem)
-    updated['proposals'] = proposList
-
-    LOGGER.debug('updated proposals:')
-    LOGGER.debug(updated['proposals'])
-
-    return updated
+                handle_new_proposal(context, transaction, content)
+            # elif action == ACTION_VOTE_PROPOSAL:
+            #     transactionInput = _decode_new_proposal(
+            #         transaction, content=content)
+            #     _handle_new_proposal(context, transactionInput)
+            # elif action == ACTION_DELETE_PROPOSAL:
+            #     transactionInput = _decode_new_proposal(
+            #         transaction, content=content)
+            #     _handle_new_proposal(context, transactionInput)
+            else:
+                raise InvalidTransaction('action not defined: '+action)
+        except Exception as e:
+            print(e)
 
 
-def _get_state_data(context, address):
-    state_entries = context.get_state([address])
-
-    try:
-        return cbor.loads(state_entries[0].data)
-    except IndexError:
-        return {}
-    except Exception as e:
-        raise InternalError('Failed to load state data') from e
-
-
-def _set_state_data(context, state, address):
-
-    encoded = cbor.dumps(state)
-
-    addresses = context.set_state({address: encoded})
-    LOGGER.debug('updated proposals:')
-
-    if not addresses:
-        raise InternalError('State error')
-
-
-def _decode_transaction(transaction) -> ProposalInput:
+def _decode_action(transaction):
 
     try:
         content = cbor.loads(transaction.payload)
@@ -125,27 +83,8 @@ def _decode_transaction(transaction) -> ProposalInput:
         raise InvalidTransaction('Invalid payload serialization') from e
 
     try:
-        category = content['category']
-    except:
-        pass
+        action = content['action']
+    except Exception as e:
+        raise InvalidTransaction('no action defined in the payload') from e
 
-    try:
-        docName = content['docName']
-    except:
-        pass
-    try:
-        contentHash = content['contentHash']
-    except:
-        pass
-    try:
-        author = content['author']
-    except:
-        pass
-    try:
-        proposedStatus = content['proposedStatus']
-    except:
-        pass
-
-    proposalID = transaction.signature
-
-    return ProposalInput(category, proposalID, docName, contentHash, author, proposedStatus)
+    return action, content
