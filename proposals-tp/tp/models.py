@@ -1,5 +1,5 @@
 import hashlib
-from typing import List, NamedTuple
+from typing import Dict, List, NamedTuple
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
 FAMILY_NAME = 'proposals'
@@ -42,7 +42,8 @@ class User(NamedTuple):
 
 
 class Document(NamedTuple):
-    proposals: List[ProposalID]
+    # proposal ID and corresponding content hash
+    proposals: Dict[ProposalID, str]
 
 
 def make_doc_address(category, docName) -> str:

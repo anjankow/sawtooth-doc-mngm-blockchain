@@ -65,9 +65,9 @@ def _add_proposal_to_author(context, newProposal: ProposalInput):
     LOGGER.debug(state)
 
     if state == {} or state == None:
-        state = User(signed=[], accepted=[], active=[])
+        state = User(signed=[], accepted=[], active=[])._asdict()
 
-    state.active.append(newProposal.proposalID)
+    state['active'].append(newProposal.proposalID)
 
     LOGGER.debug('updated author state:')
     LOGGER.debug(state)
@@ -92,7 +92,8 @@ def _insert_proposal_data(context, newProposal: ProposalInput):
                             currentStatus=STATUS_ACTIVE,
                             contentHash=newProposal.contentHash)
 
-    set_state_data(context, proposal, address)
+    state = proposal._asdict()
+    set_state_data(context, state, address)
 
 
 def _add_proposal_to_doc(context, newProposal: ProposalInput):
@@ -108,9 +109,9 @@ def _add_proposal_to_doc(context, newProposal: ProposalInput):
     LOGGER.debug(state)
 
     if state == {} or state == None:
-        state = Document(proposals=[])
+        state = Document(proposals={})._asdict()
 
-    state.proposals.append(newProposal.proposalID)
+    state['proposals'][newProposal.proposalID] = newProposal.contentHash
 
     LOGGER.debug('updated doc:')
     LOGGER.debug(state)
