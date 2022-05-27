@@ -59,16 +59,12 @@ class ProposalsHandler(TransactionHandler):
             action, content = _decode_action(transaction)
 
             if action == ACTION_INSERT_PROPOSAL:
+                LOGGER.info('inserting new proposal')
+                handle_new_proposal(context, content)
+            elif action == ACTION_VOTE_PROPOSAL:
+                LOGGER.info('voting on proposal')
+                handle_vote(context, content)
 
-                handle_new_proposal(context, transaction, content)
-            # elif action == ACTION_VOTE_PROPOSAL:
-            #     transactionInput = _decode_new_proposal(
-            #         transaction, content=content)
-            #     _handle_new_proposal(context, transactionInput)
-            # elif action == ACTION_DELETE_PROPOSAL:
-            #     transactionInput = _decode_new_proposal(
-            #         transaction, content=content)
-            #     _handle_new_proposal(context, transactionInput)
             else:
                 raise InvalidTransaction('action not defined: '+action)
         except Exception as e:

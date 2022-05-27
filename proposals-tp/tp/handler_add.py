@@ -15,11 +15,10 @@ from .utils import *
 LOGGER = logging.getLogger(__name__)
 
 
-def handle_new_proposal(context, transaction, content):
+def handle_new_proposal(context, content):
     transactionInput = _decode_new_proposal(content)
     transactionInput.validate()
 
-    LOGGER.debug('inserting proposal data')
     _insert_proposal_data(context, transactionInput)
     LOGGER.debug('adding the proposal to the doc')
     _add_proposal_to_doc(context, transactionInput)
@@ -65,7 +64,7 @@ def _add_proposal_to_author(context, newProposal: ProposalInput):
     LOGGER.debug(state)
 
     if state == {} or state == None:
-        state = User(signed=[], accepted=[], active=[])._asdict()
+        state = User(voted=[], accepted=[], active=[])._asdict()
 
     state['active'].append(newProposal.proposalID)
 

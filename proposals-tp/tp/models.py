@@ -34,9 +34,14 @@ class ProposalData(NamedTuple):
     currentStatus: str
     contentHash: str
 
+    def set_status(self, status):
+        dic = self._asdict()
+        dic['currentStatus'] = status
+        return ProposalData(**dic)
+
 
 class User(NamedTuple):
-    signed: List[ProposalID]
+    voted: List[ProposalID]
     active: List[ProposalID]
     accepted: List[ProposalID]
 
