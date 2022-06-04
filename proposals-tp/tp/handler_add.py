@@ -60,8 +60,6 @@ def _add_proposal_to_author(context, newProposal: ProposalInput):
     LOGGER.debug(address)
 
     state = get_state_data(context, address)
-    LOGGER.debug('current author state:')
-    LOGGER.debug(state)
 
     if state == {} or state == None:
         state = User(voted=[], accepted=[], active=[])._asdict()
@@ -103,9 +101,6 @@ def _add_proposal_to_doc(context, newProposal: ProposalInput):
     LOGGER.debug(address)
 
     state = get_state_data(context, address)
-
-    LOGGER.debug('current state:')
-    LOGGER.debug(state)
 
     if state == {} or state == None:
         state = Document(proposals={})._asdict()

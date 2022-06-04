@@ -35,8 +35,6 @@ def handle_vote(context, content):
         return
 
     proposal = ProposalData(**state)
-    LOGGER.debug('current proposal state:')
-    LOGGER.debug(proposal)
 
     if voter in proposal.signers:
         LOGGER.info('proposal already signed by this signer: ' +
@@ -90,8 +88,6 @@ def _accept_proposal(context, proposal: ProposalData) -> ProposalData:
     LOGGER.debug(address)
 
     state = get_state_data(context, address)
-    LOGGER.debug('current author state:')
-    LOGGER.debug(state)
 
     if state == {} or state == None:
         state = User(voted=[], accepted=[], active=[])._asdict()
