@@ -44,7 +44,6 @@ def handle_remove(context, content):
     set_state_data(context, state, address)
 
     _remove_from_author(context, proposal)
-    _remove_from_voters(context, proposal)
     _remove_from_doc(context, proposal)
 
 
@@ -61,23 +60,6 @@ def _remove_from_author(context, proposal: ProposalData):
     state['active'].remove(proposal.proposalID)
 
     set_state_data(context, state, address)
-
-
-def _remove_from_voters(context, proposal: ProposalData):
-    for voter in proposal.signers:
-
-        address = make_user_address(voter)
-        LOGGER.debug('voter address:')
-        LOGGER.debug(address)
-
-        state = get_state_data(context, address)
-        if state == {} or state == None:
-            LOGGER.warning('user doesn\'t exist: '+voter)
-            continue
-
-        state['voted'].remove(proposal.proposalID)
-
-        set_state_data(context, state, address)
 
 
 def _remove_from_doc(context, proposal: ProposalData):
