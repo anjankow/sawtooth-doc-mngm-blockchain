@@ -64,6 +64,9 @@ class ProposalsHandler(TransactionHandler):
             elif action == ACTION_VOTE_PROPOSAL:
                 LOGGER.info('voting on proposal')
                 handle_vote(context, content)
+            elif action == ACTION_DELETE_PROPOSAL:
+                LOGGER.info('removing proposal')
+                handle_remove(context, content)
 
             else:
                 raise InvalidTransaction('action not defined: '+action)
