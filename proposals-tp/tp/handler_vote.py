@@ -12,24 +12,15 @@ from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.exceptions import InternalError
 from .models import *
 from .utils import *
+from base64 import b64decode
 
 LOGGER = logging.getLogger(__name__)
 
-VOTE_THRESHOLD = 2
-
-
-def get_setting_addr(name: str) -> str:
-    addr = "000000"
-    parts = name.split('.')
-    for i in range(0, 4):
-        if i < len(parts):
-            addr += hashlib.sha256(parts[i].encode()).hexdigest()[:16]
-        else:
-            addr += hashlib.sha256(''.encode()).hexdigest()[:16]
-    return addr
+DEFAULT_VOTE_THRESHOLD = 1
 
 
 def handle_vote(context, content):
+
     proposalID, voter = _decode_vote(content)
 
     if proposalID == '' or voter == '':
@@ -54,7 +45,10 @@ def handle_vote(context, content):
 
     proposal.signers.append(voter)
 
-    if len(proposal.signers) == VOTE_THRESHOLD:
+    voteThreshold = read_setting(
+        context, 'proposal.vote.threshold', defaultValue=DEFAULT_VOTE_THRESHOLD)
+
+    if len(proposal.signers) >= int(voteThreshold):
         LOGGER.info('vote threshold reached! signers: ' +
                     ' '.join(proposal.signers))
         proposal = _accept_proposal(context, proposal)
