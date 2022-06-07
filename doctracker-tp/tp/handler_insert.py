@@ -1,39 +1,75 @@
 from .models import *
+from .utils import *
 
 
 def handle_new_document(context, content):
-    transactionInput = _decode_new_doc_version(content)
-    transactionInput.validate()
+    doc = DocumentVersion(**content)
+    doc.validate()
 
-    _insert_doc_version(context, transactionInput)
-    _add_doc_author(context, transactionInput)
-    _add_doc_to_signers(context, transactionInput)
+    _insert_doc_version(context, doc)
+    _add_doc_to_author(context, doc)
+    _add_doc_to_signers(context, doc)
 
     return
 
 
-class ProposalInput(NamedTuple):
-    category: str
-    proposalID: str
-    docName: str
-    contentHash: str
-    author: str
-    proposedStatus: str
+def _insert_doc_version(context, doc: DocumentVersion):
 
-    def validate(self):
-        err = ''
-        if self.category == '':
-            err += 'category is missing; '
-        if self.proposalID == '':
-            err += 'proposal ID is missing; '
-        if self.docName == '':
-            err += 'docName is missing; '
-        if not (self.proposedStatus == STATUS_ACTIVE or self.proposedStatus == STATUS_REMOVED):
-            err += 'invalid proposedStatus: '+self.proposedStatus+'; '
-        if self.contentHash == '' and self.proposedStatus != STATUS_REMOVED:
-            err += 'contentHash is missing; '
-        if self.author == '':
-            err += 'author is missing; '
+    address = make_doc_address(doc.category, doc.documentName, doc.version)
 
-        if err != '':
-            raise InvalidTransaction('validation error: '+err)
+    LOGGER.debug('doc address:')
+    LOGGER.debug(address)
+
+    state = get_state_data(context, address)
+    if not(state == {} or state == None):
+        raise InvalidTransaction("doc version already exists! %s %s %d" % (
+            doc.documentName, doc.category, doc.version))
+
+    state = doc._asdict()
+    set_state_data(context, state, address)
+
+
+def _add_doc_to_author(context, doc: DocumentVersion):
+
+    address = make_user_address(doc.author)
+    LOGGER.debug('author address:')
+    LOGGER.debug(address)
+
+    state = get_state_data(context, address)
+
+    if state == {} or state is None:
+        user = User(signed=[], authored=[])
+    else:
+        user = User(**state)
+
+    docAddr = make_doc_address(doc.category, doc.documentName, doc.version)
+    user.authored.append(docAddr)
+
+    LOGGER.debug('updated user:')
+    LOGGER.debug(user)
+
+    set_state_data(context, user._asdict(), address)
+
+
+def _add_doc_to_signers(context, doc: DocumentVersion):
+    docAddr = make_doc_address(doc.category, doc.documentName, doc.version)
+
+    for signer in doc.signers:
+        address = make_user_address(signer)
+
+        LOGGER.debug('signer address:')
+        LOGGER.debug(address)
+
+        state = get_state_data(context, address)
+
+        if state == {} or state is None:
+            user = User(signed=[], authored=[])
+        else:
+            user = User(**state)
+
+        user.signed.append(docAddr)
+
+        LOGGER.debug('updated signer:')
+        LOGGER.debug(user)
+
+        set_state_data(context, user._asdict(), address)

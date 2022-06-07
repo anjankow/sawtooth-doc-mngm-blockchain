@@ -1,5 +1,5 @@
 import hashlib
-from typing import Dict, List, NamedTuple
+from typing import List, NamedTuple
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
 FAMILY_NAME = 'doctracker'
@@ -34,6 +34,24 @@ class DocumentVersion(NamedTuple):
         dic = self._asdict()
         dic['status'] = status
         return DocumentVersion(**dic)
+
+    def validate(self):
+        err = ''
+        if self.category == '':
+            err += 'category is missing; '
+        if self.proposalID == '':
+            err += 'proposal ID is missing; '
+        if self.documentName == '':
+            err += 'docName is missing; '
+        if not (self.status == STATUS_ACTIVE or self.status == STATUS_REMOVED):
+            err += 'invalid status: '+self.status+'; '
+        if self.contentHash == '' and self.status != STATUS_REMOVED:
+            err += 'contentHash is missing; '
+        if self.author == '':
+            err += 'author is missing; '
+
+        if err != '':
+            raise InvalidTransaction('validation error: '+err)
 
 
 class User(NamedTuple):

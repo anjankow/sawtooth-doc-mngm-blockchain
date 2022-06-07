@@ -34,7 +34,7 @@ services:
       - validator
     volumes:
       - type: bind
-        source: .
+        source: ./doctracker-tp/
         target: /project
 
   proposals-tp:

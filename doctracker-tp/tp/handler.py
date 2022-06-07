@@ -1,15 +1,11 @@
 import logging
+
 import cbor
-import hashlib
-from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
-from sawtooth_sdk.processor.exceptions import InternalError
+from sawtooth_sdk.processor.handler import TransactionHandler
 
 from .handler_insert import *
 from .handler_invalidate import *
-
-
-from sawtooth_sdk.processor.handler import TransactionHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -63,4 +59,5 @@ def _decode_action(transaction):
     except Exception as e:
         raise InvalidTransaction('no action defined in the payload') from e
 
+    del content['action']
     return action, content
