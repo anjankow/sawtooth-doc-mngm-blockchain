@@ -68,9 +68,3 @@ def make_user_address(user) -> str:
     return FAMILY_ADDR_PREFIX + \
         hashlib.sha512(USER_PREFIX.encode('utf-8')).hexdigest()[0:6] + \
         hashlib.sha512(user.encode('utf-8')).hexdigest()[0:58]
-
-
-print(make_user_address('alabaster'))
-print(make_proposal_data_address(
-    '60a9e27b2ca2d845d7304a0955a1b358ec6e66d952bfc199b862d05ad365588d4f2272a0d570117518bb781667b6012b0f89206e89baabfe1bc8792c009bfcff'))
-print(make_doc_address('general2', 'docname'))
