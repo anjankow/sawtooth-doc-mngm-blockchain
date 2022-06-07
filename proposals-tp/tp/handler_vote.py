@@ -36,6 +36,11 @@ def handle_vote(context, content):
 
     proposal = ProposalData(**state)
 
+    if proposal.currentStatus == 'accepted':
+        LOGGER.warn('can\'t vote on already accepted proposal; voter: ' +
+                    voter+', proposalID: '+proposalID)
+        return
+
     if voter in proposal.signers:
         LOGGER.info('proposal already signed by this signer: ' +
                     voter+', proposalID: '+proposalID)

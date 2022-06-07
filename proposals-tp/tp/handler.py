@@ -15,19 +15,20 @@
 
 # based on https://github.com/hyperledger/sawtooth-sdk-python/blob/6885a1cbfc210a14fc2406f2dae5504c9881602c/examples/intkey_python/sawtooth_intkey/processor/handler.py
 
+import hashlib
+import logging
 from nis import cat
 from select import select
 from typing import List
-import logging
+
 import cbor
-import hashlib
-from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
-from sawtooth_sdk.processor.exceptions import InternalError
-from .models import *
+from sawtooth_sdk.processor.handler import TransactionHandler
+
 from .handler_add import *
 from .handler_remove import *
 from .handler_vote import *
+from .models import *
 
 LOGGER = logging.getLogger(__name__)
 
