@@ -21,7 +21,7 @@ DEFAULT_VOTE_THRESHOLD = 1
 
 def handle_remove(context, content):
 
-    proposalID = _decode_remove(content)
+    proposalID = content['proposalID']
 
     if proposalID == '':
         LOGGER.warning(
@@ -81,13 +81,3 @@ def _remove_from_doc(context, proposal: ProposalData):
     LOGGER.debug(updated)
 
     set_state_data(context, updated, address)
-
-
-def _decode_remove(content):
-
-    try:
-        proposalID = content['proposalID']
-    except:
-        proposalID = ''
-
-    return proposalID

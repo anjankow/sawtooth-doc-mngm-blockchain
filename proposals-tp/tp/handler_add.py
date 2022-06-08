@@ -16,7 +16,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def handle_new_proposal(context, content):
-    transactionInput = _decode_new_proposal(content)
+    transactionInput = ProposalInput(**content)
     transactionInput.validate()
 
     _insert_proposal_data(context, transactionInput)
@@ -111,35 +111,3 @@ def _add_proposal_to_doc(context, newProposal: ProposalInput):
     LOGGER.debug(state)
 
     set_state_data(context, state, address)
-
-
-def _decode_new_proposal(content) -> ProposalInput:
-
-    try:
-        proposalID = content['proposalID']
-    except:
-        pass
-
-    try:
-        category = content['category']
-    except:
-        pass
-
-    try:
-        docName = content['docName']
-    except:
-        pass
-    try:
-        contentHash = content['contentHash']
-    except:
-        pass
-    try:
-        author = content['author']
-    except:
-        pass
-    try:
-        proposedStatus = content['proposedStatus']
-    except:
-        pass
-
-    return ProposalInput(category, proposalID, docName, contentHash, author, proposedStatus)

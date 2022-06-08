@@ -87,4 +87,5 @@ def _decode_action(transaction):
     except Exception as e:
         raise InvalidTransaction('no action defined in the payload') from e
 
+    del content['action']
     return action, content
