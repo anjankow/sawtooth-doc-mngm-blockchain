@@ -17,6 +17,10 @@ version: "3.4"
 
 services:
 
+################################################################
+############              BLOCKCHAIN                ############
+################################################################
+
   settings-tp:
     image: hyperledger/sawtooth-settings-tp:chime
     container_name: sawtooth-settings-tp-default
@@ -92,12 +96,24 @@ services:
       - validator
     entrypoint: sawtooth-rest-api --verbose -C tcp://validator:4004 --bind rest-api:8008
 
-  # shell:
-  #   build:
-  #     context: shell/
-  #   container_name: sawtooth-shell
-  #   depends_on:
-  #     - rest-api
+
+################################################################
+############                BACKEND                 ############
+################################################################
+
+  backend:
+    image: registry.gitlab.com/swtooth/backend:latest
+    env_file:
+      - backend/.env
+    ports:
+      - 8077:8077
+    # entrypoint:
+    #   - /bin/bash
+    depends_on:
+      - mongo
+      - validator
+      - rest-api
+
 
   mongo:
     image: mongo:5.0.8
@@ -112,16 +128,16 @@ services:
     logging:
       driver: none
 
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-    depends_on:
-      - mongo
-    logging:
-      driver: none
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: example
+  #     ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+  #   depends_on:
+  #     - mongo
+  #   logging:
+  #     driver: none
