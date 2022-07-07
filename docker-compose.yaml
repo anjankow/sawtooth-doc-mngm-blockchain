@@ -57,8 +57,6 @@ services:
     container_name: sawtooth-validator-default
     expose:
       - 4004
-    ports:
-      - "4004:4004"
     # start the validator with an empty genesis batch
     entrypoint: "bash -c \"\
         sawadm keygen && \
@@ -90,8 +88,8 @@ services:
   rest-api:
     image: hyperledger/sawtooth-rest-api:chime
     container_name: sawtooth-rest-api-default
-    ports:
-      - "8008:8008"
+    expose:
+      - 8008
     depends_on:
       - validator
     entrypoint: sawtooth-rest-api --verbose -C tcp://validator:4004 --bind rest-api:8008
@@ -123,8 +121,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     # volumes:
     #   - /tmp/docstorage:/data/db:rw
-    ports:
-      - 27017:27017
+    expose:
+      - 27017
     logging:
       driver: none
 
