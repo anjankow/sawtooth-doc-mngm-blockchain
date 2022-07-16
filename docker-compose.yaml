@@ -36,10 +36,10 @@ services:
     container_name: sawtooth-doctracker-tp
     depends_on:
       - validator
-    volumes:
-      - type: bind
-        source: ./doctracker-tp/
-        target: /project
+    # volumes:
+    #   - type: bind
+    #     source: ./doctracker-tp/
+    #     target: /project
 
   proposals-tp:
     build:
@@ -47,10 +47,10 @@ services:
     container_name: sawtooth-proposals-tp
     depends_on:
       - validator
-    volumes:
-      - type: bind
-        source: ./proposals-tp/
-        target: /project
+    # volumes:
+    #   - type: bind
+    #     source: ./proposals-tp/
+    #     target: /project
 
   validator:
     image: hyperledger/sawtooth-validator:chime
@@ -101,6 +101,7 @@ services:
 
   backend:
     image: registry.gitlab.com/swtooth/backend:latest
+    container_name: backend
     env_file:
       - backend/.env
     ports:
@@ -115,6 +116,7 @@ services:
 
   mongo:
     image: mongo:5.0.8
+    container_name: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root

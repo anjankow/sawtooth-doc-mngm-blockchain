@@ -3,15 +3,9 @@ FROM python:3.8
 RUN pip install sawtooth-sdk cbor
 
 WORKDIR /project
-# COPY . .
-
-### to compile settings proto file ###
-######################################
-# RUN apt update && apt install -y protobuf-compiler
-# RUN wget https://raw.githubusercontent.com/hyperledger/sawtooth-sdk-python/main/protos/setting.proto
-# RUN protoc -I=. --python_out=./tp/ setting.proto
-######################################
+COPY . .
 
 ENV PATH "$PATH:/project/tp"
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION 'python'
 
 ENTRYPOINT ["python3", "main.py"]
